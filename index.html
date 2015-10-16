@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <script type="application/javascript">
+  //convert to animation of the drawing
+  function hash(x,y) {
+    return x + "," + y;
+  }
+  var id;
+  var drawfunc;
+  function draw() {
+        var d = {}
+      var canvas = document.getElementById('tutorial');
+  var ctx = canvas.getContext('2d');
+  var MAX_ITERATIONS = 20;  
+  var counter = 0;
+  function actDraw() {
+        if (counter++ >=  MAX_ITERATIONS) {
+            clearInterval(id)
+            console.log("restart")
+            d = {}
+            counter = 0;
+            id = setInterval(drawfunc, 100);
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+      for(var x = 0; x < canvas.width; x++) {
+          for(var y = 0; y < canvas.width; y++) {
+              var c_re = (x - (canvas.width/2.0)) * (4.0/canvas.width);
+              var c_im = (y - (canvas.height/2.0)) * (4.0/canvas.width);
+              var z_re = 0;
+              var z_im = 0;
+              var iterations = 0;
+              
+              if (d.hasOwnProperty(hash(x,y))) {
+                var obj = d[hash(x,y)]
+                z_re = obj[0]
+                z_im = obj[1]
+                iterations = obj[2]
+              }  else {
+                d[hash(x,y)] = [z_re, z_im, iterations, false]
+              }
+              var obj = d[hash(x,y)]
+              if (obj[3]) {
+                ctx.fillStyle = "rgb(30," + obj[2]*15 + ",0)"
+                ctx.fillRect(x, y, 1, 1);
+                continue;
+              }
+              //while ((z_re*z_re + z_im*z_im) <= 4 && iterations < MAX_ITERATIONS) {
+                  var z_re_new = z_re * z_re - z_im * z_im + c_re;
+                  z_im = 2 * z_re * z_im + c_im;
+                  z_re = z_re_new;
+                  iterations++;
+              //}                                      
+              obj[0] = z_re
+              obj[1] = z_im
+              obj[2] = iterations
+
+              if ((z_re * z_re + z_im * z_im) > 4) {
+                obj[3] = true
+                ctx.fillStyle = "rgb(30," + iterations*15 + ",0)"
+              }
+              else {
+                ctx.fillStyle = "black";
+              }
+              //console.log(iterations)
+              ctx.fillRect(x, y, 1, 1);
+          }
+      }
+  }
+  return actDraw
+  
+  }
+  function gg() {
+    drawfunc = draw()
+   id = setInterval(drawfunc, 100);
+  }
+  function go() {
+    drawfunc();
+  }
+  </script>
+  <style>
+  canvas {
+  display: block;
+  margin: auto;
+  background-color:white;
+}
+
+body {
+  background: white;
+  margin: 0;
+}</style>
+ </head>
+ <body onload="gg();">
+    <div>
+        <!-- <button onclick="go();">hello</button> -->
+       <canvas id="tutorial" width="400" height="400"></canvas>
+       
+   </div>
+ </body>
+</html>
